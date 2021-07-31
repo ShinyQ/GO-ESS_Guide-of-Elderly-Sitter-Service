@@ -3,7 +3,12 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
+use Api;
 
 class Handler extends ExceptionHandler
 {
@@ -27,29 +32,25 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Report or log an exception.
-     *
-     * @param  \Throwable  $exception
-     * @return void
-     *
-     * @throws \Throwable
-     */
-    public function report(Throwable $exception)
-    {
-        parent::report($exception);
-    }
-
-    /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Throwable  $exception
-     * @return \Symfony\Component\HttpFoundation\Response
-     *
-     * @throws \Throwable
+     * @param Request $request
+     * @param Throwable $e
+     * @return JsonResponse
+     * @throws Throwable
      */
-    public function render($request, Throwable $exception)
+    public function render($request, Throwable $e)
     {
-        return parent::render($request, $exception);
+        if ($e instanceof MethodNotAllowedHttpException) {
+            $code = 405;
+            return Api::apiRespond($code, []);
+        }   else if ($e instanceof NotFoundHttpException){
+            $code = 404;
+            return Api::apiRespond($code, []);
+        }  else if ($e instanceof NotFoundHttpException) {
+            $code = 500;
+            return Api::apiRespond($code, $e);
+        }
+        return parent::render($request, $e);
     }
 }
