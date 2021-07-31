@@ -1,0 +1,8 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/kurniadi/public_html/goess
+    - /bin/cp -R * $DEPLOYPATH
+    - composer install
+    - php artisan config:cache
+    - php artisan migrate
